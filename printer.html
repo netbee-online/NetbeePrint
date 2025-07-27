@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Printer Management API Documentation</title>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.2/swagger-ui.min.css" />
+    <style>
+        html {
+            box-sizing: border-box;
+            overflow: -moz-scrollbars-vertical;
+            overflow-y: scroll;
+        }
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+        body {
+            margin:0;
+            background: #fafafa;
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        }
+        #swagger-ui {
+            max-width: 1460px;
+            margin: 0 auto;
+        }
+        .swagger-ui .topbar {
+            background-color: #2c3e50;
+        }
+        .custom-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .custom-header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .custom-header p {
+            margin: 10px 0 0 0;
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="custom-header">
+        <h1>🖨️ Printer Management API</h1>
+        <p>Comprehensive API for managing printers and print jobs</p>
+    </div>
+    
+    <div id="swagger-ui"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.2/swagger-ui-bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.18.2/swagger-ui-standalone-preset.min.js"></script>
+    <script>
+        window.onload = function() {
+            const spec = {
+                "openapi": "3.0.3",
+                "info": {
+                    "title": "Printer Management API",
+                    "description": "API for managing printers and print jobs",
+                    "version": "3.1.3",
+                    "contact": {
+                        "name": "Printer API Support"
+                    }
+                },
+                "servers": [
+                    {
+                        "url": "http://localhost:2450/api",
+                        "description": "Local development server"
+                    },
+                    {
+                        "url": "http://0.0.0.0:2450/api",
+                        "description": "Network accessible server"
+                    }
+                ],
+                "paths": {
+                    "/status": {
+                        "get": {
+                            "tags": ["System"],
+                            "summary": "Get API status",
+                            "description": "Returns the current status of the printer API service",
+                            "operationId": "getStatus",
+                            "responses": {
+                                "200": {
+                                    "description": "API status retrieved successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "allOf": [
+                                                    {"$ref": "#/components/schemas/ApiResponse"},
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "data": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "status": {
+                                                                        "type": "string",
+                                                                        "example": "running"
+                                                                    },
+                                                                    "version": {
+                                                                        "type": "string",
+                                                                        "example": "3.1.3"
+                                                                    },
+                                                                    "timestamp": {
+                                                                        "type": "string",
+                                                                        "example": "1672531200000"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "/printers": {
+                        "get": {
+                            "tags": ["Printers"],
+                            "summary": "Get all printers",
+                            "description": "Retrieve a list of all configured printers",
+                            "operationId": "getPrinters",
+                            "responses": {
+                                "200": {
+                                    "description": "Printers retrieved successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "allOf": [
+                                                    {"$ref": "#/components/schemas/ApiResponse"},
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "data": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "$ref": "#/components/schemas/PrinterEntity"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "500": {
+                                    "description": "Internal server error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "/printers/print": {
+                        "post": {
+                            "tags": ["Print Jobs"],
+                            "summary": "Print to all printers",
+                            "description": "Send an image to print on all configured printers",
+                            "operationId": "printToAll",
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "multipart/form-data": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "string",
+                                                    "format": "binary",
+                                                    "description": "Image file to print"
+                                                }
+                                            },
+                                            "required": ["image"]
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Print job created successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/SuccessResponse"
+                                            }
+                                        }
+                                    }
+                                },
+                                "400": {
+                                    "description": "Bad request",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            },
+                                            "examples": {
+                                                "no_image": {
+                                                    "summary": "No image provided",
+                                                    "value": {
+                                                        "success": false,
+                                                        "message": "Image file is required"
+                                                    }
+                                                },
+                                                "invalid_file_type": {
+                                                    "summary": "Invalid file type",
+                                                    "value": {
+                                                        "success": false,
+                                                        "message": "Only image files are allowed"
+                                                    }
+                                                },
+                                                "no_printers": {
+                                                    "summary": "No printers configured",
+                                                    "value": {
+                                                        "success": false,
+                                                        "message": "No printer found!"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "500": {
+                                    "description": "Internal server error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "/printers/cut": {
+                        "post": {
+                            "tags": ["Print Jobs"],
+                            "summary": "Cut paper on all printers",
+                            "description": "Send a cut command to all configured printers",
+                            "operationId": "cutAllPrinters",
+                            "responses": {
+                                "201": {
+                                    "description": "Cut job created successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "allOf": [
+                                                    {"$ref": "#/components/schemas/ApiResponse"},
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "message": {
+                                                                "example": "Cut job created successfully"
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "400": {
+                                    "description": "No printers found",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            },
+                                            "example": {
+                                                "success": false,
+                                                "message": "No printer found!"
+                                            }
+                                        }
+                                    }
+                                },
+                                "500": {
+                                    "description": "Internal server error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "/printers/{id}": {
+                        "get": {
+                            "tags": ["Printers"],
+                            "summary": "Get printer by ID",
+                            "description": "Retrieve a specific printer by its ID",
+                            "operationId": "getPrinterById",
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "description": "Printer ID",
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Printer retrieved successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "allOf": [
+                                                    {"$ref": "#/components/schemas/ApiResponse"},
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "data": {
+                                                                "$ref": "#/components/schemas/PrinterEntity"
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "400": {
+                                    "description": "Invalid printer ID",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            },
+                                            "example": {
+                                                "success": false,
+                                                "message": "Invalid printer ID"
+                                            }
+                                        }
+                                    }
+                                },
+                                "404": {
+                                    "description": "Printer not found",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            },
+                                            "example": {
+                                                "success": false,
+                                                "message": "printer not found"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "delete": {
+                            "tags": ["Printers"],
+                            "summary": "Delete printer",
+                            "description": "Remove a printer from the system",
+                            "operationId": "deletePrinter",
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "description": "Printer ID",
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "200": {
+                                    "description": "Printer deleted successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "allOf": [
+                                                    {"$ref": "#/components/schemas/ApiResponse"},
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "message": {
+                                                                "example": "Printer deleted successfully"
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "400": {
+                                    "description": "Invalid printer ID",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                },
+                                "404": {
+                                    "description": "Printer not found",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            },
+                                            "example": {
+                                                "success": false,
+                                                "message": "Printer not found"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "/printers/{id}/print": {
+                        "post": {
+                            "tags": ["Print Jobs"],
+                            "summary": "Print to specific printer",
+                            "description": "Send an image to print on a specific printer",
+                            "operationId": "printById",
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "description": "Printer ID",
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "requestBody": {
+                                "required": true,
+                                "content": {
+                                    "multipart/form-data": {
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "image": {
+                                                    "type": "string",
+                                                    "format": "binary",
+                                                    "description": "Image file to print"
+                                                }
+                                            },
+                                            "required": ["image"]
+                                        }
+                                    }
+                                }
+                            },
+                            "responses": {
+                                "201": {
+                                    "description": "Print job created successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/SuccessResponse"
+                                            }
+                                        }
+                                    }
+                                },
+                                "400": {
+                                    "description": "Bad request",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                },
+                                "500": {
+                                    "description": "Internal server error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "/printers/{id}/cut": {
+                        "post": {
+                            "tags": ["Print Jobs"],
+                            "summary": "Cut paper on specific printer",
+                            "description": "Send a cut command to a specific printer",
+                            "operationId": "cutById",
+                            "parameters": [
+                                {
+                                    "name": "id",
+                                    "in": "path",
+                                    "required": true,
+                                    "description": "Printer ID",
+                                    "schema": {
+                                        "type": "string"
+                                    }
+                                }
+                            ],
+                            "responses": {
+                                "201": {
+                                    "description": "Cut job created successfully",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "allOf": [
+                                                    {"$ref": "#/components/schemas/ApiResponse"},
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "message": {
+                                                                "example": "Cut job created successfully"
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                },
+                                "400": {
+                                    "description": "Bad request",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                },
+                                "500": {
+                                    "description": "Internal server error",
+                                    "content": {
+                                        "application/json": {
+                                            "schema": {
+                                                "$ref": "#/components/schemas/ErrorResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "components": {
+                    "schemas": {
+                        "ApiResponse": {
+                            "type": "object",
+                            "properties": {
+                                "success": {
+                                    "type": "boolean",
+                                    "description": "Indicates if the request was successful"
+                                },
+                                "message": {
+                                    "type": "string",
+                                    "description": "Human-readable message about the operation",
+                                    "nullable": true
+                                },
+                                "data": {
+                                    "description": "Response data (type varies by endpoint)",
+                                    "nullable": true
+                                }
+                            },
+                            "required": ["success"]
+                        },
+                        "SuccessResponse": {
+                            "allOf": [
+                                {"$ref": "#/components/schemas/ApiResponse"},
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Print job created successfully"
+                                        },
+                                        "data": {
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "ErrorResponse": {
+                            "allOf": [
+                                {"$ref": "#/components/schemas/ApiResponse"},
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "description": "Error message describing what went wrong"
+                                        },
+                                        "data": {
+                                            "nullable": true
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        "PrinterEntity": {
+                            "type": "object",
+                            "discriminator": {
+                                "propertyName": "type",
+                                "mapping": {
+                                    "bluetooth": "#/components/schemas/BluetoothPrinter",
+                                    "network": "#/components/schemas/NetworkPrinter",
+                                    "usb": "#/components/schemas/UsbPrinter"
+                                }
+                            },
+                            "oneOf": [
+                                {"$ref": "#/components/schemas/BluetoothPrinter"},
+                                {"$ref": "#/components/schemas/NetworkPrinter"},
+                                {"$ref": "#/components/schemas/UsbPrinter"}
+                            ]
+                        },
+                        "BluetoothPrinter": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Unique printer identifier"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["bluetooth"]
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Printer display name"
+                                },
+                                "address": {
+                                    "type": "string",
+                                    "description": "Bluetooth MAC address"
+                                }
+                            },
+                            "required": ["id", "type", "address"]
+                        },
+                        "NetworkPrinter": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Unique printer identifier"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["network"]
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Printer display name"
+                                },
+                                "ip": {
+                                    "type": "string",
+                                    "description": "IP address of the network printer",
+                                    "format": "ipv4"
+                                },
+                                "port": {
+                                    "type": "integer",
+                                    "description": "Port number for network connection",
+                                    "minimum": 1,
+                                    "maximum": 65535
+                                }
+                            },
+                            "required": ["id", "type", "ip", "port"]
+                        },
+                        "UsbPrinter": {
+                            "type": "object",
+                            "properties": {
+                                "id": {
+                                    "type": "string",
+                                    "description": "Unique printer identifier"
+                                },
+                                "type": {
+                                    "type": "string",
+                                    "enum": ["usb"]
+                                },
+                                "name": {
+                                    "type": "string",
+                                    "description": "Printer display name"
+                                },
+                                "deviceId": {
+                                    "type": "string",
+                                    "description": "USB device identifier"
+                                }
+                            },
+                            "required": ["id", "type"]
+                        }
+                    }
+                },
+                "tags": [
+                    {
+                        "name": "System",
+                        "description": "System status and health endpoints"
+                    },
+                    {
+                        "name": "Printers",
+                        "description": "Printer management operations"
+                    },
+                    {
+                        "name": "Print Jobs",
+                        "description": "Print and cut job operations"
+                    }
+                ]
+            };
+
+            SwaggerUIBundle({
+                url: '',
+                spec: spec,
+                dom_id: '#swagger-ui',
+                deepLinking: true,
+                presets: [
+                    SwaggerUIBundle.presets.apis,
+                    SwaggerUIStandalonePreset
+                ],
+                plugins: [
+                    SwaggerUIBundle.plugins.DownloadUrl
+                ],
+                layout: "StandaloneLayout",
+                tryItOutEnabled: true,
+                requestInterceptor: function(request) {
+                    return request;
+                },
+                responseInterceptor: function(response) {
+                    return response;
+                }
+            });
+        };
+    </script>
+</body>
+</html>
