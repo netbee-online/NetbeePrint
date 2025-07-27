@@ -6,7 +6,7 @@ This repository provides resources for integrating with **NetBee Print** – a p
 
 To view the complete documentation and integration guide, please refer to the following file:
 
-👉 **[print.html](./print.html)**
+👉 **[printer.html](./printer.html)**
 
 This file contains:
 
